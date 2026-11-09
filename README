@@ -1,0 +1,60 @@
+#  FastAPI RBAC & Authentication API
+
+Uma API moderna e segura desenvolvida em Python com **FastAPI**, focada em boas práticas de mercado para **Autenticação de Usuários**, **Criptografia de Senhas**, **Geração de Tokens JWT (Crachá Digital)** e **Controle de Acesso Baseado em Papéis (RBAC)**.
+
+---
+
+##  Tecnologias Utilizadas
+
+- **Python 3.10+**
+- **FastAPI** (Framework web rápido e moderno)
+- **Pydantic** (Validação rigorosa de dados de entrada)
+- **Passlib & Bcrypt** (Criptografia e hash seguro de senhas)
+- **PyJWT** (Criação e validação de tokens de acesso)
+- **Uvicorn** (Servidor ASGI para execução da API)
+
+---
+
+##  Funcionalidades
+
+- **Cadastro de Usuários:** Validação automática de dados e proteção de senhas com *Bcrypt* (hash seguro).
+- **Sistema de Login (Authentication):** Retorna um **Token JWT** exclusivo após a verificação de credenciais.
+- **Controle de Acesso por Cargos (RBAC):**
+  -  **Rota Comum:** Acessível por qualquer usuário autenticado.
+  - **Rota do Administrador:** Protegida e restrita apenas a usuários com o cargo `admin`.
+- **Tratamento de Exceções:** Erros tratados com códigos HTTP amigáveis (`400`, `401`, `403`) para evitar que a aplicação caia.
+
+---
+
+##  Como Executar o Projeto Localmente
+
+Siga os passos abaixo para rodar o projeto na sua máquina:
+
+1. **Clone o repositório:**
+   ```bash
+   git clone [https://github.com/noahsvieira/Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-.git](https://github.com/noahsvieira/Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-.git)
+   cd seu-repositorio
+
+## Instale as dependências:
+   
+
+pip install fastapi uvicorn pydantic passlib[bcrypt] pyjwt
+
+## Inicie o servidor:
+
+uvicorn seguranca:app --reload
+
+## Acesse a documentação interativa (Swagger UI):
+Abra o seu navegador e acesse: http://127.0.0.1:8000/docs
+
+## Endpoints Principais
+
+| Método | Rota | Descrição | Requer Token? |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/cadastro` | Cadastra um novo usuário (`usuario` ou `admin`) | Não |
+| `POST` | `/login` | Realiza o login e gera o Token JWT | Não |
+| `GET` | `/sala-comum` | Acessa a área comum | Sim (Token de Usuário) |
+| `GET` | `/sala-do-chefe` | Acessa a área exclusiva de administradores | Sim (Token de Admin) |
+
+## Autor
+Criado com dedicação por [Noah S.Vieira] para dominar o desenvolvimento Back-end com Python!
