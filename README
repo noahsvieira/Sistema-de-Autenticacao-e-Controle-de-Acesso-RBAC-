@@ -1,60 +1,78 @@
-#  FastAPI RBAC & Authentication API
+# 🛡️ FastAPI RBAC & JWT Authentication Service
 
-Uma API moderna e segura desenvolvida em Python com **FastAPI**, focada em boas práticas de mercado para **Autenticação de Usuários**, **Criptografia de Senhas**, **Geração de Tokens JWT (Crachá Digital)** e **Controle de Acesso Baseado em Papéis (RBAC)**.
+API RESTful desenvolvida em **Python (FastAPI)** projetada para implementar fluxos seguros de **Autenticação Stateless (JWT)** e **Controle de Acesso Baseado em Papéis (RBAC)**. O projeto aplica princípios de *Security by Design* e *OWASP Top 10* (prevenção contra *Broken Access Control* e falhas de identificação/autenticação).
 
----
-
-##  Tecnologias Utilizadas
-
-- **Python 3.10+**
-- **FastAPI** (Framework web rápido e moderno)
-- **Pydantic** (Validação rigorosa de dados de entrada)
-- **Passlib & Bcrypt** (Criptografia e hash seguro de senhas)
-- **PyJWT** (Criação e validação de tokens de acesso)
-- **Uvicorn** (Servidor ASGI para execução da API)
+![Python](https://img.shields.io/badge/Python-3.10+-000000?style=flat-square&logo=python&logoColor=00FF41)
+![FastAPI](https://img.shields.io/badge/FastAPI-000000?style=flat-square&logo=fastapi&logoColor=00FF41)
+![JWT](https://img.shields.io/badge/JWT-Stateless-000000?style=flat-square&logo=jsonwebtokens&logoColor=00FF41)
+![OWASP](https://img.shields.io/badge/OWASP-RBAC_&_AppSec-000000?style=flat-square&logo=owasp&logoColor=00FF41)
 
 ---
 
-##  Funcionalidades
+## 🏗️ Arquitetura & Decisões de Segurança
 
-- **Cadastro de Usuários:** Validação automática de dados e proteção de senhas com *Bcrypt* (hash seguro).
-- **Sistema de Login (Authentication):** Retorna um **Token JWT** exclusivo após a verificação de credenciais.
-- **Controle de Acesso por Cargos (RBAC):**
-  -  **Rota Comum:** Acessível por qualquer usuário autenticado.
-  - **Rota do Administrador:** Protegida e restrita apenas a usuários com o cargo `admin`.
-- **Tratamento de Exceções:** Erros tratados com códigos HTTP amigáveis (`400`, `401`, `403`) para evitar que a aplicação caia.
+- **Hashing Criptográfico (Bcrypt):** Senhas nunca são armazenadas em texto plano; utiliza-se `Passlib` com *salt* automático para mitigação de ataques de força bruta e *rainbow tables*.
+- **Autenticação Stateless (JWT):** Emissão e validação de tokens assinados via `PyJWT` com tempo de expiração configurado (`exp`), eliminando a necessidade de estado de sessão no servidor.
+- **Autorização Granular (RBAC):** Injeção de dependências (`Depends`) no FastAPI para validar escopos e privilégios (`user` vs `admin`) antes da execução da regra de negócio.
+- **Sanitização de Payloads:** Validação estrita de schemas na entrada e saída de dados via **Pydantic**, bloqueando dados malformados e vazamento de atributos sensíveis (como hashes de senha) nas respostas.
+- **Tratamento Padronizado de Exceções:** Retorno explícito de status codes HTTP (`400 Bad Request`, `401 Unauthorized`, `403 Forbidden`) sem exposição de *stack traces* internos.
 
 ---
 
-##  Como Executar o Projeto Localmente
+## 🛠️ Stack Técnica
 
-Siga os passos abaixo para rodar o projeto na sua máquina:
+- **Linguagem:** Python 3.10+
+- **Framework & Servidor:** FastAPI, Uvicorn (ASGI)
+- **Validação & Serialização:** Pydantic
+- **Segurança & Criptografia:** PyJWT, Passlib (`bcrypt`)
 
-1. **Clone o repositório:**
+---
+
+## 🚀 Como Executar Localmente
+
+1. **Clone o repositório e acesse o diretório:**
    ```bash
    git clone [https://github.com/noahsvieira/Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-.git](https://github.com/noahsvieira/Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-.git)
-   cd seu-repositorio
+   cd Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-
+   ```
 
-## Instale as dependências:
-   
+2. **Crie e ative um ambiente virtual (recomendado):**
+   ```bash
+   python -m venv venv
+   # Linux/macOS:
+   source venv/bin/activate
+   # Windows:
+   venv\Scripts\activate
+   ```
 
-pip install fastapi uvicorn pydantic passlib[bcrypt] pyjwt
+3. **Instale as dependências:**
+   ```bash
+   pip install fastapi uvicorn pydantic "passlib[bcrypt]" pyjwt
+   ```
 
-## Inicie o servidor:
+4. **Inicie o servidor ASGI:**
+   ```bash
+   uvicorn seguranca:app --reload
+   ```
 
-uvicorn seguranca:app --reload
+5. **Explore a documentação interativa (OpenAPI / Swagger):**
+   Acesse `http://127.0.0.1:8000/docs` para testar os fluxos de geração de token e autorização via botão **Authorize**.
 
-## Acesse a documentação interativa (Swagger UI):
-Abra o seu navegador e acesse: http://127.0.0.1:8000/docs
+---
 
-## Endpoints Principais
+## 🔌 Especificação dos Endpoints
 
-| Método | Rota | Descrição | Requer Token? |
+| Método | Rota | Descrição | Autenticação / Escopo |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/cadastro` | Cadastra um novo usuário (`usuario` ou `admin`) | Não |
-| `POST` | `/login` | Realiza o login e gera o Token JWT | Não |
-| `GET` | `/sala-comum` | Acessa a área comum | Sim (Token de Usuário) |
-| `GET` | `/sala-do-chefe` | Acessa a área exclusiva de administradores | Sim (Token de Admin) |
+| `POST` | `/cadastro` | Registra um novo usuário com atribuição de papel (`usuario` ou `admin`). | Pública |
+| `POST` | `/login` | Autentica credenciais e retorna o `access_token` (Bearer JWT). | Pública |
+| `GET` | `/sala-comum` | Recurso protegido acessível a qualquer identidade autenticada. | `Bearer Token` (Qualquer papel) |
+| `GET` | `/sala-do-chefe` | Recurso administrativo restrito por validação de privilégio. | `Bearer Token` (`role == admin`) |
 
-## Autor
-Criado com dedicação por [Noah S.Vieira] para dominar o desenvolvimento Back-end com Python!
+---
+
+## 👨‍💻 Autor
+
+**Noah Souza Vieira** — Desenvolvedor Back-end | Python & Java | Cibersegurança & DevSecOps  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-000000?style=flat-square&logo=linkedin&logoColor=00FF41)](https://linkedin.com/in/noah-ti)
+[![GitHub](https://img.shields.io/badge/GitHub-000000?style=flat-square&logo=github&logoColor=00FF41)](https://github.com/noahsvieira)
