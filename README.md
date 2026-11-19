@@ -1,54 +1,58 @@
 <div align="center">
 
-# 🛡️ FastAPI RBAC & JWT Authentication Service
+# 🛡️ FastAPI RBAC & JWT Auth Service
 
-**Secure RESTful API architecture engineered for Stateless Authentication and Granular Role-Based Access Control.**
+**Arquitetura Back-end de alta performance focada em Autenticação Stateless e Controle de Acesso Baseado em Papéis (RBAC).**
 
 ![Python](https://img.shields.io/badge/Python-3.10+-000000?style=for-the-badge&logo=python&logoColor=00FF41)
 ![FastAPI](https://img.shields.io/badge/FastAPI-000000?style=for-the-badge&logo=fastapi&logoColor=00FF41)
 ![JWT](https://img.shields.io/badge/JWT-Stateless-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=00FF41)
-![OWASP](https://img.shields.io/badge/OWASP-Top_10_Security-000000?style=for-the-badge&logo=owasp&logoColor=00FF41)
+![OWASP](https://img.shields.io/badge/OWASP-Security_by_Design-000000?style=for-the-badge&logo=owasp&logoColor=00FF41)
 
 </div>
 
 ---
 
-## 🏗️ Architecture & Security Decisions (`Security by Design`)
+## ⚡ Visão Geral do Sistema
 
-This service implements robust backend security patterns to mitigate common web vulnerabilities and enforce strict access boundaries:
+Este microsserviço foi estruturado sob os princípios de **Security by Design**, implementando barreiras de segurança rigorosas na camada de aplicação para mitigar riscos comuns mapeados pelo **OWASP Top 10** (como falhas de controle de acesso e autenticação).
 
-| Security Pillar | Technical Implementation |
+---
+
+## 🏗️ Decisões de Arquitetura & Segurança
+
+| Pilar Técnico | Implementação Prática |
 | :--- | :--- |
-| **🔐 Cryptographic Hashing** | Passwords are never stored in plaintext. Uses **Bcrypt** (`Passlib`) with automated salt generation to protect against brute-force and rainbow table attacks. |
-| **🎟️ Stateless Authentication** | Issues and validates digitally signed tokens via **PyJWT** carrying configured expiration claims (`exp`), removing server-side session overhead. |
-| **🛂 Granular Authorization (RBAC)** | Leverages FastAPI's Dependency Injection (`Depends`) to evaluate permissions and roles (`user` vs `admin`) before routing requests. |
-| **🛡️ Payload Sanitization** | Strict input/output schema validation via **Pydantic** to block malformed data and prevent sensitive attribute leakage. |
-| **🚦 Standardized Exception Handling** | Explicit HTTP status code mapping (`400`, `401`, `403`) preventing internal stack trace exposure. |
+| **🔐 Criptografia de Senhas** | Utilização de **Bcrypt** (`Passlib`) com *salt* automático, blindando o banco de dados contra ataques de força bruta e *rainbow tables*. |
+| **🎟️ Autenticação Stateless** | Emissão e validação de tokens digitais via **PyJWT** com tempo de expiração (`exp`), eliminando a necessidade de sessões em memória no servidor. |
+| **🛂 Autorização Granular** | Aplicação de Injeção de Dependências (`Depends`) do FastAPI para checagem estrita de escopos e papéis (`user` vs `admin`) antes de executar rotas críticas. |
+| **🛡️ Sanitização de Payloads** | Validação automática de schemas na entrada e saída de dados com **Pydantic**, prevenindo injeções e vazamento de atributos sensíveis. |
+| **🚦 Tratamento de Exceções** | Mapeamento explícito de códigos HTTP (`400`, `401`, `403`) sem exposição de rastros internos de erro (*stack traces*). |
 
 ---
 
-## 🔌 API Endpoints Specification
+## 🔌 Mapa de Endpoints & Permissões
 
-| Method | Endpoint | Description | Access Scope / Auth |
+| Método | Rota | Descrição Técnica | Nível de Acesso |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/cadastro` | Registers a new identity with assigned role (`usuario` or `admin`). | 🔓 Public |
-| `POST` | `/login` | Authenticates credentials and returns a signed `access_token` (Bearer JWT). | 🔓 Public |
-| `GET` | `/sala-comum` | Protected resource accessible by any authenticated identity. | 🔑 `Bearer Token` (Any role) |
-| `GET` | `/sala-do-chefe` | Administrative resource restricted by privilege validation. | 👑 `Bearer Token` (`role == admin`) |
+| `POST` | `/cadastro` | Registra uma nova identidade e atribui seu respectivo papel de acesso. | 🔓 Público |
+| `POST` | `/login` | Valida credenciais e retorna um `access_token` assinado (Bearer JWT). | 🔓 Público |
+| `GET` | `/sala-comum` | Recurso protegido acessível por qualquer token válido. | 🔑 Autenticado (`user` / `admin`) |
+| `GET` | `/sala-do-chefe` | Área restrita blindada por validação estrita de privilégios. | 👑 Restrito (`role == admin`) |
 
 ---
 
-## 🚀 Quick Start / Local Deployment
+## 🚀 Guia de Execução Local
 
-Follow these commands to clone and run the service locally:
+Clone o repositório e suba o ambiente com os seguintes comandos no terminal:
 
 ```bash
-# 1. Clone the repository and navigate to the directory
+# 1. Clone o projeto e acesse o diretório
 git clone [https://github.com/noahsvieira/Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-.git](https://github.com/noahsvieira/Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-.git)
 cd Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-
 
-# 2. Install dependencies
+# 2. Instale as dependências essenciais
 pip install fastapi uvicorn pydantic "passlib[bcrypt]" pyjwt
 
-# 3. Launch the ASGI server
+# 3. Inicie o servidor ASGI em modo de desenvolvimento
 uvicorn seguranca:app --reload
