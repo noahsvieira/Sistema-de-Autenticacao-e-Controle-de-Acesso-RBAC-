@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🛡️ FastAPI RBAC & JWT Auth Service
+# 🛡️ FastAPI RBAC & JWT Authentication Service
 
-**Arquitetura Back-end segura para Autenticação Stateless e Controle de Acesso Granular.**
+**Secure RESTful API architecture engineered for Stateless Authentication and Granular Role-Based Access Control.**
 
 ![Python](https://img.shields.io/badge/Python-3.10+-000000?style=for-the-badge&logo=python&logoColor=00FF41)
 ![FastAPI](https://img.shields.io/badge/FastAPI-000000?style=for-the-badge&logo=fastapi&logoColor=00FF41)
@@ -13,49 +13,42 @@
 
 ---
 
-### 🏗️ Arquitetura & Segurança (`Security by Design`)
+## 🏗️ Architecture & Security Decisions (`Security by Design`)
 
-| Pilar Técnico | Implementação no Código |
+This service implements robust backend security patterns to mitigate common web vulnerabilities and enforce strict access boundaries:
+
+| Security Pillar | Technical Implementation |
 | :--- | :--- |
-| **🔐 Hashing Criptográfico** | Senhas protegidas com **Bcrypt** (`Passlib`) e *salt* automático contra força bruta. |
-| **🎟️ Autenticação Stateless** | Emissão e validação de tokens assinados via **PyJWT** com expiração (`exp`). |
-| **🛂 Controle de Acesso (RBAC)** | Injeção de dependências (`Depends`) validando escopos (`user` vs `admin`). |
-| **🛡️ Sanitização de Payloads** | Schemas estritos com **Pydantic**, bloqueando dados malformados e vazamento de hashes. |
-| **🚦 Respostas Padronizadas** | Tratamento explícito de exceções HTTP (`400`, `401`, `403`) sem expor *stack traces*. |
+| **🔐 Cryptographic Hashing** | Passwords are never stored in plaintext. Uses **Bcrypt** (`Passlib`) with automated salt generation to protect against brute-force and rainbow table attacks. |
+| **🎟️ Stateless Authentication** | Issues and validates digitally signed tokens via **PyJWT** carrying configured expiration claims (`exp`), removing server-side session overhead. |
+| **🛂 Granular Authorization (RBAC)** | Leverages FastAPI's Dependency Injection (`Depends`) to evaluate permissions and roles (`user` vs `admin`) before routing requests. |
+| **🛡️ Payload Sanitization** | Strict input/output schema validation via **Pydantic** to block malformed data and prevent sensitive attribute leakage. |
+| **🚦 Standardized Exception Handling** | Explicit HTTP status code mapping (`400`, `401`, `403`) preventing internal stack trace exposure. |
 
 ---
 
-### 🔌 Mapa de Endpoints
+## 🔌 API Endpoints Specification
 
-| Método | Rota | Descrição | Escopo Exigido |
+| Method | Endpoint | Description | Access Scope / Auth |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/cadastro` | Registra usuário com atribuição de papel (`usuario` ou `admin`). | 🔓 Pública |
-| `POST` | `/login` | Autentica credenciais e gera o `access_token` (Bearer JWT). | 🔓 Pública |
-| `GET` | `/sala-comum` | Área protegida acessível a qualquer identidade autenticada. | 🔑 `Bearer Token` |
-| `GET` | `/sala-do-chefe` | Área administrativa restrita por validação de privilégio. | 👑 `Bearer Token (admin)` |
+| `POST` | `/cadastro` | Registers a new identity with assigned role (`usuario` or `admin`). | 🔓 Public |
+| `POST` | `/login` | Authenticates credentials and returns a signed `access_token` (Bearer JWT). | 🔓 Public |
+| `GET` | `/sala-comum` | Protected resource accessible by any authenticated identity. | 🔑 `Bearer Token` (Any role) |
+| `GET` | `/sala-do-chefe` | Administrative resource restricted by privilege validation. | 👑 `Bearer Token` (`role == admin`) |
 
 ---
 
-### 🚀 Como Executar Localmente
+## 🚀 Quick Start / Local Deployment
+
+Follow these commands to clone and run the service locally:
 
 ```bash
-# 1. Clone o repositório e acesse a pasta
+# 1. Clone the repository and navigate to the directory
 git clone [https://github.com/noahsvieira/Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-.git](https://github.com/noahsvieira/Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-.git)
 cd Sistema-de-Autenticacao-e-Controle-de-Acesso-RBAC-
 
-# 2. Instale as dependências
+# 2. Install dependencies
 pip install fastapi uvicorn pydantic "passlib[bcrypt]" pyjwt
 
-# 3. Inicie o servidor ASGI
+# 3. Launch the ASGI server
 uvicorn seguranca:app --reload
-```
-
-> 📖 Após iniciar, acesse **`http://127.0.0.1:8000/docs`** para testar os fluxos no **Swagger UI** (use o botão *Authorize* para injetar o token).
-
----
-
-<div align="center">
-  Desenvolvido por <b>Noah Souza Vieira</b> — Back-end & DevSecOps<br><br>
-  <a href="https://linkedin.com/in/noah-ti"><img src="https://img.shields.io/badge/LinkedIn-000000?style=flat-square&logo=linkedin&logoColor=00FF41" /></a>
-  <a href="https://github.com/noahsvieira"><img src="https://img.shields.io/badge/GitHub-000000?style=flat-square&logo=github&logoColor=00FF41" /></a>
-</div>
